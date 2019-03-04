@@ -20,7 +20,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class SensitiveWordInit {
 	private static final String ENCODING = "UTF-8";    //字符编码
-
+	
     public HashMap<Object,Object> sensitiveWordMap;
     public Set<String> sensitiveWordset;
     
@@ -81,37 +81,42 @@ public class SensitiveWordInit {
      * @author sly
      * @time 2019年3月1日
      */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private void addSensitiveWordToHashMap(Set<String> keyWordSet) {
-        sensitiveWordMap = new HashMap<>(keyWordSet.size());     //初始化敏感词容器，减少扩容操作
-        String key = null;  
-        Map<Object,Object> nowMap = null;
-        Map<Object, Object> newWorMap = null;
-        //迭代keyWordSet
-        Iterator<String> iterator = keyWordSet.iterator();
-        while(iterator.hasNext()){
-            key = iterator.next();    //关键字
-            nowMap = sensitiveWordMap;
-            for(int i = 0 ; i < key.length() ; i++){
-                char keyChar = key.charAt(i);       //转换成char型
-                Object wordMap = nowMap.get(keyChar);       //获取
-                
-                if(wordMap != null){        //如果存在该key，直接赋值
-                    nowMap = (Map<Object,Object>) wordMap;
-                }
-                else{     //不存在则，则构建一个map，同时将isEnd设置为0，因为他不是最后一个
-                    newWorMap = new HashMap<Object,Object>();
-                    newWorMap.put("isEnd", "0");     //不是最后一个
-                    nowMap.put(keyChar, newWorMap);
-                    nowMap = newWorMap;
-                }
-                
-                if(i == key.length() - 1){
-                    nowMap.put("isEnd", "1");    //最后一个
-                }
-            }
-        }
-    }
+		sensitiveWordMap = new HashMap<>(keyWordSet.size()); // 初始化敏感词容器，减少扩容操作
+		String key = null;
+		Map<Object, Object> nowMap = null;
+		Map<Object, Object> newWorMap = null;
+		// 迭代keyWordSet
+		Iterator<String> iterator = keyWordSet.iterator();
+		while (iterator.hasNext()) {
+			// 关键字 转换为小写
+			key = iterator.next().toLowerCase();
+			nowMap = sensitiveWordMap;
+			for (int i = 0; i < key.length(); i++) {
+				// 转换成char型
+				char keyChar = key.charAt(i);
+				// 获取
+				Object wordMap = nowMap.get(keyChar);
+				// 如果存在该key，直接赋值
+				if (wordMap != null) {
+					nowMap = (Map<Object, Object>) wordMap;
+				} else {
+					// 不存在则，则构建一个map，同时将isEnd设置为0，因为他不是最后一个
+					newWorMap = new HashMap<Object, Object>();
+					// 不是最后一个
+					newWorMap.put("isEnd", "0");
+					nowMap.put(keyChar, newWorMap);
+					nowMap = newWorMap;
+				}
+
+				if (i == key.length() - 1) {
+					// 最后一个
+					nowMap.put("isEnd", "1");
+				}
+			}
+		}
+	}
     
     /**
      * _读取敏感词库中的内容，将内容添加到set集合中
@@ -128,16 +133,18 @@ public class SensitiveWordInit {
 			File file = new File("src/main/resources/SensitiveWord.txt");
 
 			InputStreamReader read = new InputStreamReader(new FileInputStream(file), ENCODING);
-			
-			
-			if (file.isFile() && file.exists()) { // 文件流是否存在
+
+			// 文件流是否存在
+			if (file.isFile() && file.exists()) {
 				sensitiveWordset = new HashSet<String>();
 				bufferedReader = new BufferedReader(read);
 				String txt = null;
-				while ((txt = bufferedReader.readLine()) != null) { // 读取文件，将文件内容放入到set中
+				// 读取文件，将文件内容放入到set中
+				while ((txt = bufferedReader.readLine()) != null) {
 					sensitiveWordset.add(txt);
 				}
-			} else { // 不存在抛出异常信息
+			} else {
+				// 不存在抛出异常信息
 				throw new Exception("敏感词库文件不存在");
 			}
 		} catch (Exception e) {
@@ -149,7 +156,7 @@ public class SensitiveWordInit {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return sensitiveWordset;
 	}
 }

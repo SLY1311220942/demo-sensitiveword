@@ -16,6 +16,8 @@ import com.sly.demo.sensitiveword.init.SensitiveWordInit;
 public class SensitivewordFilter {
 	private Map<Object, Object> sensitiveWordMap = null;
 	public Set<String> sensitiveWordset = null;
+	//无效字符:空格、*、#、@
+	public char invaChar[] = {' ','*','#','@'};
 	// 最小匹配规则
 	public static int minMatchType = 1;
 	// 最大匹配规则
@@ -63,8 +65,7 @@ public class SensitivewordFilter {
 	 * @time 2019年3月1日
 	 */
 	public Set<String> getSensitiveWord(String txt, int matchType) {
-		Set<String> sensitiveWordList = new HashSet<String>();
-
+		Set<String> sensitiveWordList = new HashSet<String>();	
 		for (int i = 0; i < txt.length(); i++) {
 			// 判断是否包含敏感字符
 			int length = CheckSensitiveWord(txt, i, matchType);
@@ -143,6 +144,18 @@ public class SensitivewordFilter {
 		Map<Object, Object> nowMap = sensitiveWordMap;
 		for (int i = beginIndex; i < txt.length(); i++) {
 			word = txt.charAt(i);
+			
+			//无效字符跳过:空格、*、#、@
+			if(isInvaChar(word)) {
+				matchFlag ++;
+				continue;
+			}
+			
+			if(txt.charAt(i) >= 'A' && txt.charAt(i) <= 'Z') {
+				//如果字母是大写(我们需要用小写去查)
+				word = Character.toLowerCase(word);
+			};
+			
 			// 获取指定key
 			nowMap = (Map<Object, Object>) nowMap.get(word); 
 			// 存在，则判断是否为最后一个
@@ -169,6 +182,22 @@ public class SensitivewordFilter {
 		}
 		return matchFlag;
 	}
+	
+	/**
+	 * 判断是否为无效字符
+	 * @param ch
+	 * @return 是无效字符返回true 不是无效字符返回false
+	 * @author sly
+	 * @time 2019年3月4日
+	 */
+	private boolean isInvaChar(char ch) {
+		for (int i = 0; i < invaChar.length; i++) {
+			if(ch == invaChar[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static void main(String[] args) {
 		
@@ -176,9 +205,10 @@ public class SensitivewordFilter {
 		System.out.println("敏感词的数量：" + filter.sensitiveWordset.size());
 		
 		String string = "太多的伤感情怀也许只局限于饲养基地 荧幕中的情节，主人公尝试着去用某种方式渐渐的很潇洒地释自杀指南怀那些自己经历的伤感。"
-				+ "然后法轮 我们的扮演的角色就是跟随着主人公的喜红客联盟你妈飞了啊 怒哀乐而过于牵强的把自己的情感也附加于银幕情节中，然后感动就流泪，"
-				+ "难过就躺在某一个人的怀里尽情的阐述心你妈扉或者手机卡复制器一个人一杯红酒一部电影在夜三级片 深人静的晚上，关上电话静静的发呆着。";
+				+ "然后法轮 我们的扮演的角色就是跟随着主人公的喜红客 #联盟你 妈 飞 了 啊 怒哀乐而过于牵强的把自己的情感也附加于银幕情节中，然后感动就流泪，"
+				+ "难过就躺在某一个人的怀里尽情的阐述心你妈扉或者手机卡复制器一个人一杯红酒一部电影在夜三级片 深人静的晚上，关上电话静静的发呆着fuckFu#ck。";
 		System.out.println("待检测语句字数：" + string.length());
+		
 		
 		long beginTime = System.currentTimeMillis();
 		Set<String> set = filter.getSensitiveWord(string, maxMatchType);
@@ -188,4 +218,5 @@ public class SensitivewordFilter {
 		
 		System.out.println("总共消耗时间为：" + (endTime - beginTime));
 	}
+	
 }
